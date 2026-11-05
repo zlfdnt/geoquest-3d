@@ -18,7 +18,7 @@
   function chrome() {
     const tb = $('#topbar'), ft = $('#foot'), sis = S.role === 'siswa', gur = S.role === 'guru', nav = sis ? NAV_S : NAV_T, x = sis && S.data ? Siswa.xp() : null;
     document.body.dataset.role = S.role;
-    tb.innerHTML = '<div class="tb-in"><a class="brand" data-go="' + (gur ? '/guru' : sis ? '/beranda' : '/') + '"><span class="logo">🧊</span><b>GeoQuest 3D</b></a>' + (gur ? '' : '<nav class="pillnav" aria-label="Menu utama">' + nav.map(n => '<a data-go="' + n[0] + '" data-p="' + n[0] + '">' + n[1] + '</a>').join('') + '</nav>') + '<div class="tb-r">' + (sis ? '<span class="chip chip-yel">Lv ' + x.lv + '</span>' : '') + (gur ? '<span class="chip chip-teal">Mode Guru</span>' : '') + (sis || gur ? '<div class="usr"><div class="who"><b>' + esc(S.me.nama) + '</b><small>' + (sis ? 'Kelas ' + esc(S.me.kelas) : 'Guru') + '</small></div><button class="avatar" data-act="menu" aria-label="Menu pengguna">' + esc(S.me.nama.slice(0, 1)) + '</button></div>' : '<button class="btn btn-primary fx-btn glow" data-act="login">🔑 Masuk</button>') + '</div></div>';
+    tb.innerHTML = '<div class="tb-in"><a class="brand" data-go="' + (gur ? '/guru' : sis ? '/beranda' : '/') + '"><span class="logo">🧊</span><b>GeoQuest 3D</b></a>' + (gur ? '' : '<nav class="pillnav" aria-label="Menu utama">' + nav.map(n => '<a data-go="' + n[0] + '" data-p="' + n[0] + '">' + n[1] + '</a>').join('') + '</nav>') + '<div class="tb-r"><button class="icon-btn" id="sfx-btn" data-act="sfx" aria-label="Suara" title="' + (Sfx.on ? 'Matikan suara' : 'Nyalakan suara') + '">' + (Sfx.on ? '🔊' : '🔇') + '</button>' + (sis ? '<span class="chip chip-yel">Lv ' + x.lv + '</span>' : '') + (gur ? '<span class="chip chip-teal">Mode Guru</span>' : '') + (sis || gur ? '<div class="usr"><div class="who"><b>' + esc(S.me.nama) + '</b><small>' + (sis ? 'Kelas ' + esc(S.me.kelas) : 'Guru') + '</small></div><button class="avatar" data-act="menu" aria-label="Menu pengguna">' + esc(S.me.nama.slice(0, 1)) + '</button></div>' : '<button class="btn btn-primary fx-btn glow" data-act="login">🔑 Masuk</button>') + '</div></div>';
     ft.innerHTML = '<div class="ft-in"><b>GeoQuest 3D · Bangun Ruang Kelas 9</b><nav><a data-go="/materi">Materi 3D</a><a data-go="/pratinjau-soal">Contoh Soal</a><a data-act="login">Portal Guru</a></nav><small>© ' + new Date().getFullYear() + ' GeoQuest 3D · <span id="foot-s">' + esc((S.set || {}).NAMA_SEKOLAH || '') + '</span> · Selaras Kurikulum Merdeka</small></div>';
     let mb = $('#mobnav'); if (mb) mb.remove();
     if (sis) { mb = document.createElement('nav'); mb.id = 'mobnav'; mb.setAttribute('aria-label', 'Menu bawah'); mb.innerHTML = NAV_S.map(n => '<a data-go="' + n[0] + '" data-p="' + n[0] + '"><span>' + n[2] + '</span>' + n[1] + '</a>').join(''); document.body.appendChild(mb); }
@@ -39,6 +39,7 @@
       catch (err) { $('#le').textContent = err.message; b.disabled = false; b.textContent = 'Masuk →'; }
     });
   };
+  U.on('sfx', () => Sfx.toggle());
   U.on('tamu', () => { U.closeModal(); U.go('/materi'); });
 
   function configScreen() {

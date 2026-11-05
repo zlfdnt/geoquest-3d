@@ -24,7 +24,7 @@
   // ---------- toast ----------
   function toast(msg, type) {
     let box = $('#toasts'); if (!box) { box = document.createElement('div'); box.id = 'toasts'; box.setAttribute('aria-live', 'polite'); document.body.appendChild(box); }
-    const t = document.createElement('div'); t.className = 'toast ' + (type || 'ok'); t.textContent = msg; box.appendChild(t);
+    const t = document.createElement('div'); t.className = 'toast ' + (type || 'ok'); t.textContent = msg; box.appendChild(t); if (window.Sfx) Sfx.play(type === 'err' ? 'wrong' : 'ping');
     requestAnimationFrame(() => t.classList.add('in'));
     setTimeout(() => { t.classList.remove('in'); setTimeout(() => t.remove(), 300); }, type === 'err' ? 5000 : 3000);
   }
@@ -34,7 +34,7 @@
     opt = opt || {}; closeModal();
     const b = document.createElement('div'); b.className = 'modal-back'; b.id = 'modal';
     b.innerHTML = '<div class="modal ' + (opt.cls || '') + '" role="dialog" aria-modal="true">' + html + '</div>';
-    document.body.appendChild(b); requestAnimationFrame(() => b.classList.add('in'));
+    document.body.appendChild(b); requestAnimationFrame(() => b.classList.add('in')); if (window.Sfx && !opt.cls) Sfx.play('pop');
     if (!opt.locked) b.addEventListener('pointerdown', e => { if (e.target === b) closeModal(); });
     const f = $('[autofocus]', b); if (f) f.focus();
     return b;

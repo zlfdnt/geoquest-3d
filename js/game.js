@@ -40,7 +40,7 @@
       let r; try { r = await API.data('asesmen.jawab', { attemptId: att.attemptId, level: st.i, jawaban: k }); } catch (e) { U.toast(e.message, 'err'); btns.forEach(b => b.disabled = false); st.busy = false; return; }
       st.ans[st.i] = k; st.res[st.i] = r;
       btns.forEach((b, j) => { b.classList.toggle('good', j === r.kunci[0]); if (j === k && !r.benar) b.classList.add('bad'); });
-      if (r.benar) { const b = btns[k].getBoundingClientRect(); FX.confetti(b.left + b.width / 2, b.top); }
+      Sfx.play(r.benar ? 'correct' : 'wrong'); if (r.benar) { const b = btns[k].getBoundingClientRect(); FX.confetti(b.left + b.width / 2, b.top); }
       host.querySelector('#g-fb').innerHTML = '<div class="fb ' + (r.benar ? 'ok' : 'no') + '"><b>' + (r.benar ? '🎉 Tepat sekali!' : '🤔 Belum tepat.') + '</b><p>' + esc(r.pembahasan) + '</p><button class="btn btn-primary fx-btn" id="g-next">' + (st.i === LV.length - 1 ? 'Lihat Hasil 🏁' : 'Level Berikutnya →') + '</button></div>';
       host.querySelector('#g-next').addEventListener('click', next); host.querySelector('#g-fb').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); st.busy = false;
     }

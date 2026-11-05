@@ -74,6 +74,16 @@ Saat diminta password, gunakan **Personal Access Token** (GitHub → Settings �
 - **Performa**: cache berlapis & berversi (CacheService, chunk), pemuatan awal lewat 1 request, log aktivitas dikirim per batch, pemantauan guru berinterval adaptif, `keepWarm` mencegah *cold start*.
 - **Interaktif**: kartu & tombol berkilau (spotlight mengikuti kursor, kilau berjalan, riak), animasi muncul/hitung naik/konfeti, **slideshow otomatis** pada hero & setiap kartu materi (3 gambar), **tombol WhatsApp mengambang**, dan **kursor “+” presisi dengan partikel hidup** (aktif di komputer; dimatikan saat ujian & mengikuti *reduced motion*).
 
+## D2. Pembaruan v1.1 — suara, ciri geometris, varian jaring-jaring, benda nyata, penemuan rumus
+
+- **Bunyi tombol (berbeda tapi serasi)**: semua bunyi dibuat dari satu keluarga nada (tangga nada pentatonik C mayor), sehingga tiap fungsi punya bunyi sendiri namun tetap seragam: *ketuk biasa*, *pindah tab*, *navigasi nomor*, *pilih jawaban*, *tombol utama*, *tombol konfirmasi/kumpulkan*, *tandai selesai* (arpeggio naik), *masuk* (naik) vs *keluar* (turun), *mulai*, *jawaban benar* (riang) vs *salah* (rendah), *lipat* (desir turun) vs *buka* (desir naik), *putar 360°*, *reset*, *ping* notifikasi, dan nada bertingkat per langkah animasi rumus. Tombol 🔊/🔇 di pojok atas mematikan semua bunyi (tersimpan di perangkat). Bunyi otomatis **dimatikan selama ujian sumatif** agar tidak mengganggu (alarm pelanggaran tetap berbunyi).
+- **Ciri Geometris interaktif** (semua 7 bangun): model 3D yang dapat diputar; pilih *titik sudut, rusuk, sisi, diagonal bidang, diagonal ruang, bidang diagonal, tinggi, tinggi sisi tegak, jari-jari, diameter, garis pelukis, lingkaran besar/kecil* — bagian yang dimaksud langsung ditandai beserta jumlahnya dan rumusnya.
+- **Varian jaring-jaring** di Laboratorium 3D: kubus & balok **11 pola** (1-4-1 A–F, 2-3-1 A–C, 2-2-2, 3-3), prisma 5 varian, limas 3 varian, tabung 4 varian, kerucut 3 varian, bola 3 varian pendekatan (gores 6/8/12). Setiap varian bisa dilipat membuktikan bentuk akhirnya.
+- **Kehidupan Nyata**: tiap contoh ditampilkan sebagai gambar bendanya (Rubik, dadu, kado, akuarium, lemari, kardus, kotak sepatu, tenda, atap pelana, cokelat segitiga, piramida, atap joglo, kemasan cokelat, teh celup piramida, kaleng, drum, pipa, tangki, es krim, topi ulang tahun, tumpeng, bola basket/voli, planet, globe), lalu slide terakhir menghubungkannya dengan bangun ruangnya.
+- **Rumus & Video**: dua animasi terpisah — **Penemuan Rumus Luas Permukaan** dan **Penemuan Rumus Volume** — masing-masing 5–8 langkah terperinci untuk setiap bangun ruang (94 langkah), dengan visual animasi (jaring-jaring terlipat/terbuka dan disorot, susunan kubus satuan, tuang air, tumpukan lapisan, dst.). Tombol **“Putar dengan Suara”** membacakan narasi tiap langkah (Web Speech API) dan lanjut otomatis; tersedia pilihan kecepatan, matikan/nyalakan narasi, dan “Dengarkan langkah ini”.
+  - Narasi memakai suara teks-ke-suara **bawaan perangkat**. Jika perangkat belum punya suara Indonesia, aplikasi menampilkan catatan dan memakai suara bawaan; tambahkan suara Indonesia di pengaturan *Text-to-speech* Android/iOS/Windows. Tanpa dukungan suara sama sekali, langkah tetap berjalan otomatis dengan teks.
+  - Peramban memblokir suara sebelum ada interaksi; karena itu suara baru berbunyi setelah siswa mengetuk tombol (otomatis terpenuhi).
+
 ## E. Batasan yang perlu diketahui
 
 - Aplikasi web **tidak dapat mengunci perangkat** sepenuhnya. Untuk ujian di kelas, pakai Chromebook mode kiosk / **Guided Access (iPhone)** dan pengawasan guru.
@@ -96,6 +106,8 @@ Saat diminta password, gunakan **Personal Access Token** (GitHub → Settings �
 | “Sesi berakhir” berulang | Rahasia sesi dirotasi / kode guru diganti | Masuk kembali |
 | Kode login tidak dikenali | Salah ketik / siswa nonaktif | Periksa di Pengaturan → Kelola Siswa |
 | Lupa kode guru | — | Jalankan `resetKodeGuru` di editor Apps Script |
+| Narasi tidak bersuara | Volume perangkat/suara Indonesia tidak ada | Naikkan volume media, cek pengaturan Text-to-speech, pastikan kotak “Narasi suara” tercentang |
+| Bunyi tombol tidak terdengar | Tombol 🔇 aktif atau mode senyap perangkat | Tekan 🔊 di pojok atas; matikan mode senyap |
 
 ## G. Daftar uji (sesuai PRD §9)
 
