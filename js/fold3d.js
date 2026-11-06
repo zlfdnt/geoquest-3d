@@ -129,19 +129,44 @@
     ctl.destroy = () => { cancelAnimationFrame(st.anim); if (ro) ro.disconnect(); }; ctl.tree = () => st.T; ctl.view = view;
     load(opt.pattern); return ctl;
   }
-  // ---------- bola: jaring-jaring pendekatan (gores) ----------
-  function goresSvg(N) {
-    const r = 70, W = 2 * Math.PI * r / N, H = Math.PI * r, x0 = (400 - 2 * Math.PI * r) / 2, y0 = 150; let o = '';
-    for (let i = 0; i < N; i++) { const cx = x0 + W * (i + 0.5), L = [], Rr = []; for (let j = 0; j <= 24; j++) { const ph = -Math.PI / 2 + Math.PI * j / 24, y = y0 + r * ph, hw = (W / 2) * Math.cos(ph); L.push((cx - hw).toFixed(1) + ',' + y.toFixed(1)); Rr.unshift((cx + hw).toFixed(1) + ',' + y.toFixed(1)); } o += '<polygon points="' + L.concat(Rr).join(' ') + '" fill="' + Art.P[['teal', 'lav', 'yel', 'coral', 'mint', 'sky'][i % 6]][1] + '" stroke="#fff" stroke-width="1.6"/>'; }
-    return Art.uri(Art.wrap(o + '<text x="200" y="285" text-anchor="middle" font-family="Epilogue,sans-serif" font-weight="700" font-size="13" fill="#1F2A44">' + N + ' gores membentuk pendekatan jaring-jaring bola</text>', [Art.P.wht[0], '#EAF6FF']));
+  // ---------- bola: jaring-jaring gores yang benar-benar dilipat menjadi bola (morfing kanvas 3D) ----------
+  function mountSphere(host, opt) {
+    const view = document.createElement('div'); view.className = 'lab-view lab-sphere'; const cv = document.createElement('canvas'); view.appendChild(cv); host.appendChild(view);
+    const ctx2 = cv.getContext('2d'), vars = variants('bola'), st = { f: opt.folded ? 1 : 0, rx: -14, ry: -12, N: 6, anim: null, quads: [], W: 420, H: 350 }, ctl = { st, variants: vars };
+    const COLS = ['#2EC4B6', '#B8A9F5', '#FFD66B', '#F58A87', '#8FE3CE', '#8CC8EE'], KF = 0.5, K = 14;
+    const hex = (c, k) => { const n = parseInt(c.slice(1), 16), f = (v) => Math.max(0, Math.min(255, Math.round(v * k))); return 'rgb(' + f(n >> 16) + ',' + f((n >> 8) & 255) + ',' + f(n & 255) + ')'; };
+    function build(N) {
+      st.N = N; st.quads = []; const w = Math.PI / N;
+      for (let i = 0; i < N; i++) { const lc = (i + 0.5) * 2 * Math.PI / N - Math.PI;
+        for (let sd = 0; sd < 2; sd++) { const l0 = sd ? lc : lc - w, l1 = sd ? lc + w : lc;
+          for (let j = 0; j < K; j++) { const pa = -Math.PI / 2 + Math.PI * j / K, pb = -Math.PI / 2 + Math.PI * (j + 1) / K;
+            st.quads.push({ g: i, c: [[pa, l0], [pa, l1], [pb, l1], [pb, l0]].map(q => { const ph = q[0], la = q[1]; return { f: [(lc + (la - lc) * Math.cos(ph)) * KF, ph * KF, 0], s: [Math.cos(ph) * Math.sin(la), Math.sin(ph), Math.cos(ph) * Math.cos(la)] }; }) }); } } }
+    }
+    const ease = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    function size() { const r = view.getBoundingClientRect(), d = window.devicePixelRatio || 1; st.W = r.width || 420; st.H = r.height || 350; cv.width = st.W * d; cv.height = st.H * d; cv.style.width = st.W + 'px'; cv.style.height = st.H + 'px'; ctx2.setTransform(d, 0, 0, d, 0, 0); }
+    function draw() {
+      ctx2.clearRect(0, 0, st.W, st.H); const N = st.N, stg = Math.min(0.05, 0.3 / N), span = 1 - (N - 1) * stg, e = ease(st.f);
+      const cy = Math.cos(st.ry * Math.PI / 180), sy = Math.sin(st.ry * Math.PI / 180), cx = Math.cos(st.rx * Math.PI / 180), sx = Math.sin(st.rx * Math.PI / 180);
+      const scF = Math.min((st.W - 70) / (2 * Math.PI * KF * 0.95), (st.H - 100) / (Math.PI * KF * 1.15)), scS = Math.min(st.W, st.H) * 0.36, sc = scF + (scS - scF) * e, ox = st.W / 2, oy = st.H / 2;
+      const out = st.quads.map(q => { const pg = ease(Math.max(0, Math.min(1, (st.f - q.g * stg) / span))), P = q.c.map(v => { const x = v.f[0] + (v.s[0] - v.f[0]) * pg, y = v.f[1] + (v.s[1] - v.f[1]) * pg, z = v.f[2] + (v.s[2] - v.f[2]) * pg; const X = x * cy + z * sy, Z = -x * sy + z * cy, Y = y * cx - Z * sx, Z2 = y * sx + Z * cx; return [X, Y, Z2]; });
+        const a = [P[1][0] - P[0][0], P[1][1] - P[0][1], P[1][2] - P[0][2]], b = [P[3][0] - P[0][0], P[3][1] - P[0][1], P[3][2] - P[0][2]], n = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], l = Math.hypot(n[0], n[1], n[2]) || 1;
+        return { g: q.g, P, z: (P[0][2] + P[1][2] + P[2][2] + P[3][2]) / 4, nz: n[2] / l }; }).sort((a, b) => a.z - b.z);
+      out.forEach(q => { const back = q.nz < 0, k = 0.78 + 0.22 * Math.abs(q.nz); ctx2.beginPath(); q.P.forEach((p, i) => { const X = ox + p[0] * sc, Y = oy - p[1] * sc; i ? ctx2.lineTo(X, Y) : ctx2.moveTo(X, Y); }); ctx2.closePath(); ctx2.fillStyle = hex(COLS[q.g % 6], back ? k * 0.86 : k * 1.06); ctx2.fill(); ctx2.strokeStyle = hex(COLS[q.g % 6], 0.9); ctx2.lineWidth = 0.7; ctx2.stroke(); });
+      if (opt.onRot) opt.onRot(Math.round(((st.ry % 360) + 360) % 360), Math.round(-st.rx));
+      // kapsi proses
+      ctx2.fillStyle = 'rgba(31,42,68,.82)'; const msg = st.f < 0.03 ? N + ' gores terbentang datar (pendekatan jaring-jaring bola)' : st.f > 0.97 ? 'Gores-gores menutup menjadi bola' : 'Gores-gores melengkung dan saling menutup…'; ctx2.font = '700 12px sans-serif'; const tw = ctx2.measureText(msg).width + 24; ctx2.beginPath(); if (ctx2.roundRect) ctx2.roundRect((st.W - tw) / 2, st.H - 34, tw, 24, 12); else ctx2.rect((st.W - tw) / 2, st.H - 34, tw, 24); ctx2.fill(); ctx2.fillStyle = '#fff'; ctx2.textAlign = 'center'; ctx2.fillText(msg, st.W / 2, st.H - 18);
+    }
+    function to(target, ms) { cancelAnimationFrame(st.anim); const f0 = st.f, t0 = performance.now(); ms = ms || 2600; (function step(t) { const k = Math.min(1, (t - t0) / ms); st.f = f0 + (target - f0) * k; draw(); if (k < 1) st.anim = requestAnimationFrame(step); else { st.f = target; draw(); } })(t0); }
+    ctl.toggle = () => { const tgt = st.f < 0.5 ? 1 : 0; to(tgt); return tgt === 1; }; ctl.fold = (v, ms) => to(v ? 1 : 0, ms); ctl.folded = () => st.f > 0.5;
+    ctl.pattern = (id) => { st.f = 0; build(+String(id || 'b6').slice(1)); draw(); };
+    ctl.spin = () => { const r0 = st.ry, t0 = performance.now(); (function step(t) { const k = Math.min(1, (t - t0) / 1600); st.ry = r0 + 360 * ease(k); draw(); if (k < 1) requestAnimationFrame(step); })(t0); };
+    ctl.reset = () => { st.rx = -14; st.ry = -12; to(0, 1100); }; ctl.highlight = () => {};
+    let drag = null; view.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; view.setPointerCapture(e.pointerId); view.classList.add('grab'); });
+    view.addEventListener('pointermove', e => { if (!drag) return; st.ry += (e.clientX - drag.x) * 0.6; st.rx = Math.max(-80, Math.min(10, st.rx - (e.clientY - drag.y) * 0.5)); drag = { x: e.clientX, y: e.clientY }; draw(); });
+    const up = () => { drag = null; view.classList.remove('grab'); }; view.addEventListener('pointerup', up); view.addEventListener('pointercancel', up);
+    const ro = window.ResizeObserver ? new ResizeObserver(() => { size(); draw(); }) : null; if (ro) ro.observe(view);
+    ctl.destroy = () => { cancelAnimationFrame(st.anim); if (ro) ro.disconnect(); };
+    size(); build(+String(opt.pattern || 'b6').slice(1)); draw(); return ctl;
   }
-  function mount2d(host, kind, opt) {
-    const v = document.createElement('div'); v.className = 'lab-view lab2d'; v.innerHTML = '<img class="l2-net" alt="Jaring-jaring pendekatan bola"><img class="l2-solid" alt="Bola" src="' + Art.img('bola', 0) + '">'; host.appendChild(v);
-    const net = v.querySelector('.l2-net'); let folded = !!opt.folded, rot = 0; const vars = variants('bola'), st = {};
-    const set = () => { v.classList.toggle('folded', folded); v.style.setProperty('--rot', rot + 'deg'); if (opt.onRot) opt.onRot(((rot % 360) + 360) % 360, 24); };
-    const load = (id) => { net.src = goresSvg(+String(id || 'b6').slice(1)); };
-    load(opt.pattern); set();
-    return { st, variants: vars, toggle() { folded = !folded; set(); return folded; }, fold(x) { folded = !!x; set(); }, folded: () => folded, spin() { rot += 360; set(); }, reset() { folded = false; rot = 0; set(); }, pattern(id) { folded = false; load(id); set(); }, highlight() {}, destroy() {} };
-  }
-  window.Fold3D = { variants, mount: (host, kind, opt) => kind === 'bola' ? mount2d(host, kind, opt || {}) : mount3d(host, kind, opt || {}) };
+  window.Fold3D = { variants, mount: (host, kind, opt) => kind === 'bola' ? mountSphere(host, opt || {}) : mount3d(host, kind, opt || {}) };
 })();

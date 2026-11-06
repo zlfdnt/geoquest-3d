@@ -189,6 +189,7 @@
     async function result(h) {
       if (st.finished && host.querySelector('.result')) return; st.finished = true; stopAll(); U.closeModal(); localStorage.removeItem(qKey); localStorage.removeItem('gq_draft_' + att.attemptId);
       await App.refresh().catch(() => {});
+      if (h.perluRefleksi) { Refleksi.flow(host, h); return; }
       const stop = h.alasan === 'pelanggaran', lulus = h.skor >= h.kkm;
       host.innerHTML = '<div class="card result center pad"><div class="medal">' + (stop ? '🚨' : lulus ? '🏆' : '⭐') + '</div><h2 class="h2">' + (stop ? 'Ujian dihentikan karena pelanggaran' : h.alasan === 'waktu habis' ? 'Waktu habis — jawaban dikumpulkan' : 'Simulasi TKA selesai!') + '</h2><div class="score-big" data-count="' + h.skor + '">0</div><p class="muted">' + h.benar + ' dari ' + h.total + ' soal benar penuh · waktu ' + U.fmtDur(h.dur) + ' · pelanggaran ' + h.langgar + '/' + batas + '</p><span class="chip ' + (h.resmi ? 'chip-teal' : 'chip-lav') + '">' + (h.resmi ? '🔒 Nilai resmi terkunci' : 'Latihan — nilai resmi tidak berubah') + '</span>' + (stop ? '<p class="muted">Jawaban yang sudah kamu isi tetap dikumpulkan dan dinilai.</p>' : '') + '<p class="muted">KKM: ' + h.kkm + ' · ' + (lulus ? 'Selamat, kamu mencapai KKM! 🎉' : 'Terus berlatih, kamu pasti bisa!') + '</p><div class="row gap center wrap"><button class="btn btn-ghost" data-go="/asesmen">Kembali ke Asesmen</button><button class="btn btn-primary fx-btn" data-go="/nilai">Lihat Nilai Saya</button></div></div>';
       FX.scan(host); if (lulus && !stop) FX.confetti();

@@ -74,6 +74,7 @@
   U.route('/ujian', () => Siswa.runAsesmen('SUM'), SIS);
   U.route('/pratinjau-soal', () => Siswa.previewSoal(), ANY);
   U.route('/nilai', () => Siswa.nilai(), SIS);
+  U.route('/hasil/:id', (p) => Siswa.hasil(p), SIS);
   U.route('/guru', () => Guru.dashboard(), GR);
   U.route('/guru/rekap', () => Guru.rekap(), GR);
   U.route('/guru/pelanggaran', () => Guru.pelanggaran(), GR);

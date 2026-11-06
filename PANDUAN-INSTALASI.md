@@ -19,7 +19,7 @@ Urutan pemasangan: **Backend dulu → salin URL-nya → isi `js/config.js` → d
 4. Pilih fungsi **`setupAppEnvironment`** di menu atas → **Run**. Setujui izin Google (Lanjutan → Buka proyek → Izinkan).
 5. Buka **Execution log**. Catat dua hal berikut — **hanya tampil sekali**:
    - `Kode guru : GURU-XXXXXX` → kode masuk guru.
-   - Daftar **siswa contoh** + kode login (`GQ-XXXXX`). Ganti/hapus sebelum dipakai sungguhan.
+   - Daftar **24 siswa kelas 9A** (dari Data_Siswa_Kelas_9A.xlsx) + akun **Contoh** (kelas *Uji Coba*) beserta kode login masing-masing (`GQ-XXXXX`). Kode juga bisa diunduh lagi dari Dashboard › Pengaturan › Kelola Siswa (Excel/PDF).
    - Hilang kode guru? Jalankan fungsi `resetKodeGuru` untuk membuat yang baru.
 6. **Deploy → New deployment → ⚙ Web app**
    - *Execute as*: **Me** · *Who has access*: **Anyone** → **Deploy**.
@@ -61,7 +61,7 @@ Saat diminta password, gunakan **Personal Access Token** (GitHub → Settings �
 1. Buka situs → **Masuk** → pakai **kode guru**.
 2. **Pengaturan Ujian**: isi nama sekolah, **nomor WhatsApp** (untuk tombol WhatsApp mengambang), durasi, KKM, batas pelanggaran.
 3. **Kelola Siswa → Impor Daftar**: tempel `Nama;Kelas` per baris → unduh daftar kode (Excel/PDF) → bagikan ke siswa. Nonaktifkan/hapus siswa contoh.
-4. Ganti kode guru (kartu *Ganti Kode Guru*).
+4. Ganti kode guru (kartu *Ganti Kode Guru*). Akun **Contoh** (kelas *Uji Coba*) dipakai untuk mencoba tampilan siswa; nonaktifkan bila tidak diperlukan.
 5. Untuk memindahkan data dari aplikasi lama: **Pengaturan → Impor Data (Migrasi)** — jalankan *Simulasi (Dry-run)* dulu; aman diulang.
 
 ## D. Rangkuman fitur & keamanan
@@ -84,6 +84,23 @@ Saat diminta password, gunakan **Personal Access Token** (GitHub → Settings �
   - Narasi memakai suara teks-ke-suara **bawaan perangkat**. Jika perangkat belum punya suara Indonesia, aplikasi menampilkan catatan dan memakai suara bawaan; tambahkan suara Indonesia di pengaturan *Text-to-speech* Android/iOS/Windows. Tanpa dukungan suara sama sekali, langkah tetap berjalan otomatis dengan teks.
   - Peramban memblokir suara sebelum ada interaksi; karena itu suara baru berbunyi setelah siswa mengetuk tombol (otomatis terpenuhi).
 
+## D3. Pembaruan v1.2 — lipatan bola, refleksi + pengayaan, data kelas 9A
+
+**Cara memasang pembaruan (Backend berubah, jadi wajib dipasang ulang):**
+1. Buka proyek Apps Script → ganti seluruh isi `Kode.gs` dengan versi baru → **Save**.
+2. Jalankan **`setupAppEnvironment`** sekali (aman diulang): menambah kolom **NIS** pada sheet Siswa dan membuat sheet **Refleksi**. Data lama tidak disentuh.
+3. Jalankan **`setupSiswaKelas9A`** sekali: **menghapus 5 siswa contoh lama beserta datanya** (progres, hasil, log), memasukkan **24 siswa kelas 9A** (NIS + nama) dan akun **Contoh** (kelas *Uji Coba*). Siswa yang Anda tambahkan sendiri tidak ikut terhapus. Aman diulang (tidak menggandakan). Kode login baru tampil di *Execution log* dan di Pengaturan › Kelola Siswa.
+4. **Deploy → Manage deployments → ✏ → New version → Deploy** (URL `/exec` tetap).
+5. Frontend: ekstrak ZIP baru, salin `GAS_URL` Anda ke `js/config.js`, lalu `git add . && git commit -m "v1.2" && git push`.
+
+> **Privasi:** `Kode.gs` kini memuat nama dan NIS siswa. Simpan hanya di Apps Script (privat) — **jangan** mengunggah `Kode.gs` ke repository GitHub yang publik. ZIP frontend tidak memuat data siswa.
+
+**Fitur baru**
+- **Bola melipat dengan jelas**: gores-gores yang terbentang datar melengkung bergantian lalu saling menutup menjadi bola utuh (pilih 6 / 8 / 12 gores; makin banyak makin mulus). Bisa diputar dengan seret saat dilipat.
+- **Refleksi wajib sebelum skor Sumatif**: setelah ujian selesai (dikumpulkan, waktu habis, atau dihentikan karena pelanggaran), siswa mengisi 6 pertanyaan refleksi (keyakinan, bagian tersulit, kecukupan waktu, strategi, rencana belajar, perasaan). **Skor disembunyikan di server** sampai refleksi tersimpan — jadi tidak bisa diakali dengan memuat ulang atau membuka halaman Nilai Saya. Jika siswa menutup halaman sebelum mengisi, tombol **Isi refleksi** muncul di Beranda dan Nilai Saya.
+- **Pengayaan**: setelah skor tampil, siswa langsung melihat 14 soal lengkap dengan **jawabannya sendiri**, **kunci jawaban**, poin per soal, wacana/tabel, dan **pembahasan langkah demi langkah** (filter: Semua / Perlu diperbaiki / Sudah benar). Dapat dibuka lagi kapan saja dari **Nilai Saya › Pengayaan**. Guru dapat menyembunyikan pengayaan di Pengaturan (mis. bila ada kelas yang belum ujian); skor tetap muncul setelah refleksi.
+- **Guru**: tab baru **Pelanggaran & Log › Refleksi Siswa** (ringkasan rata-rata keyakinan dan bagian tersulit, tabel + unduh Excel/PDF); kolom **NIS** di Kelola Siswa; impor siswa kini menerima `Nama;Kelas;NIS`.
+
 ## E. Batasan yang perlu diketahui
 
 - Aplikasi web **tidak dapat mengunci perangkat** sepenuhnya. Untuk ujian di kelas, pakai Chromebook mode kiosk / **Guided Access (iPhone)** dan pengawasan guru.
@@ -105,6 +122,7 @@ Saat diminta password, gunakan **Personal Access Token** (GitHub → Settings �
 | Perubahan kode backend tidak berlaku | Belum buat *New version* | Manage deployments → New version |
 | “Sesi berakhir” berulang | Rahasia sesi dirotasi / kode guru diganti | Masuk kembali |
 | Kode login tidak dikenali | Salah ketik / siswa nonaktif | Periksa di Pengaturan → Kelola Siswa |
+| Skor Sumatif tidak muncul | Refleksi belum diisi (disengaja) | Siswa membuka Nilai Saya › **Isi refleksi** |
 | Lupa kode guru | — | Jalankan `resetKodeGuru` di editor Apps Script |
 | Narasi tidak bersuara | Volume perangkat/suara Indonesia tidak ada | Naikkan volume media, cek pengaturan Text-to-speech, pastikan kotak “Narasi suara” tercentang |
 | Bunyi tombol tidak terdengar | Tombol 🔇 aktif atau mode senyap perangkat | Tekan 🔊 di pojok atas; matikan mode senyap |
