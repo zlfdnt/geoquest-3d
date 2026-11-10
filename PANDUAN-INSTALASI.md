@@ -101,6 +101,17 @@ Saat diminta password, gunakan **Personal Access Token** (GitHub → Settings �
 - **Pengayaan**: setelah skor tampil, siswa langsung melihat 14 soal lengkap dengan **jawabannya sendiri**, **kunci jawaban**, poin per soal, wacana/tabel, dan **pembahasan langkah demi langkah** (filter: Semua / Perlu diperbaiki / Sudah benar). Dapat dibuka lagi kapan saja dari **Nilai Saya › Pengayaan**. Guru dapat menyembunyikan pengayaan di Pengaturan (mis. bila ada kelas yang belum ujian); skor tetap muncul setelah refleksi.
 - **Guru**: tab baru **Pelanggaran & Log › Refleksi Siswa** (ringkasan rata-rata keyakinan dan bagian tersulit, tabel + unduh Excel/PDF); kolom **NIS** di Kelola Siswa; impor siswa kini menerima `Nama;Kelas;NIS`.
 
+## D4. Pembaruan v1.3 — video tertanam, volume bola, juring kerucut
+
+Hanya **frontend** yang berubah (backend tetap): ekstrak ZIP baru, isi `GAS_URL`, lalu `git add . && git commit -m "v1.3" && git push`.
+
+- **Video pembelajaran di tab Rumus & Video** — tampil tepat **sebelum Contoh Soal**: **Bola** (volume), **Limas** (volume), dan **Kerucut** (volume). Video tampil sebagai poster dengan tombol *Putar Video*; setelah ditekan, video diputar **di dalam halaman** memakai pemutar YouTube versi *nocookie* yang dikunci (`sandbox` tanpa izin pop-up dan tanpa izin mengalihkan halaman). Jadi mengetuk logo/judul YouTube di dalam pemutar **tidak membuka YouTube** — siswa tetap di GeoQuest 3D. Layar penuh tetap tersedia.
+  - Mengganti video: `js/config.js` → `VIDEO_YOUTUBE: { kerucut: 'ID_VIDEO_BARU' }` (ID adalah bagian sesudah `youtu.be/` sebelum tanda `?`). Bangun lain bisa diberi video dengan cara yang sama.
+  - Jika pemilik video melarang penyematan, pemutar menampilkan pesan “Pemilik video tidak mengizinkan…” dan siswa diminta memberi tahu guru. **Cobalah memutar ketiga video sekali setelah deploy** untuk memastikan semuanya dapat disematkan.
+  - Video dimuat dari YouTube sehingga membutuhkan internet pada perangkat siswa.
+- **Penemuan Rumus Volume Bola dirancang ulang (11 langkah)**: tabung, **kerucut**, dan bola ditampilkan bersama (semuanya berjari-jari r, tinggi tabung dan kerucut = 2r) → volume tabung 2πr³ → **kerucut = ⅓ tabung** (tuang 3×) → percobaan **bola ⇒ ⅔ tinggi tabung** → pemeriksaan dengan **2 kerucut** → langkah khusus **“Jangan tertukar ⅓ dan ⅔”** dengan perbandingan isi tiga bangun → hitung V = ⁴⁄₃πr³ → alasan memakai **irisan Cavalieri** → contoh angka → ringkasan anti salah kaprah. Setiap kali ⅔πr³ pada kerucut muncul, ditegaskan bahwa itu hanya hasil ⅓ × 2πr³ — kerucut tetap ⅓ tabung.
+- **Penemuan Rumus Luas Permukaan Kerucut diperinci (15 langkah)**, khusus bagian juring: apa itu juring (potongan lingkaran berjari-jari s) → mengapa jari-jari juring = garis pelukis → **busur melingkari alas** (dua titik berjalan bersamaan) → **mengapa panjang busur = keliling alas = 2πr** (busur dan keliling alas diluruskan, sama panjang) → perbandingan dengan lingkaran penuh (2πr ÷ 2πs = r/s) → luas lingkaran penuh πs² → **luas juring = (r/s) × πs² = πrs** → cara kedua: juring seperti segitiga (½ × 2πr × s) → jumlahkan → Pythagoras → contoh angka dengan pemeriksaan.
+
 ## E. Batasan yang perlu diketahui
 
 - Aplikasi web **tidak dapat mengunci perangkat** sepenuhnya. Untuk ujian di kelas, pakai Chromebook mode kiosk / **Guided Access (iPhone)** dan pengawasan guru.

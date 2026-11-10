@@ -51,7 +51,7 @@
     wa: t => { tone(N.G5, t, 0.09, { v: 0.15 }); tone(N.C6, t + 0.1, 0.16, { v: 0.15 }); }
   };
   const IDS = { 'l-spin': 'spin', 'l-reset': 'reset', 'k-cek': 'check', 'uji-cek': 'check', 'g-next': 'next', 'k-next': 'next', 'k-prev': 'prev', 'x-next': 'next', 'x-prev': 'prev', 'x-sub': 'confirm', 'u-start': 'start', 'x-rg': 'tap', 'v-back': 'unlock', 'lb': 'unlock', 'dv-p': 'prev', 'dv-x': 'next', 't-x': 'export', 't-p': 'export', 'g-pdf': 'export', 'p-save': 'success', 'f-save': 'success', 'wa-fab': 'wa', 'sfx-btn': 'tap' };
-  const ACTS = { login: 'unlock', logout: 'lock', tandai: 'success', mulai: 'start', menu: 'tap', tamu: 'tap', 'dv-play': 'start' };
+  const ACTS = { yt: 'start', login: 'unlock', logout: 'lock', tandai: 'success', mulai: 'start', menu: 'tap', tamu: 'tap', 'dv-play': 'start' };
   function resolve(el) {
     const e = el.closest('[data-sfx],button,a,[role=tab],.opt,.g-opt,[data-go],[data-act],label.ragu'); if (!e || e.disabled) return null;
     if (e.dataset.sfx) return [e.dataset.sfx === 'none' ? null : e.dataset.sfx];
