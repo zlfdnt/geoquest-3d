@@ -6,7 +6,7 @@ window.APP_CONFIG = {
   GAS_URL: 'https://script.google.com/macros/s/AKfycbwSbShGTzd2AboFTmoNwavluOsmAxOibkBi9JbuqcqIjzX2zrnO7E2qZ4Xh4bI5aQdF/exec',
 
   // Opsional: nomor WhatsApp cadangan (format 62812xxxx). Nomor utama diatur guru di Dashboard › Pengaturan.
-  WA_NOMOR: '',
+  WA_NOMOR: '6281371164131',
 
   // Opsional: GANTI video bawaan per bangun dengan ID YouTube Anda (mis. kerucut: 'abcDEF12345').
   // Bawaan: bola, limas, kerucut sudah memuat video volume. Kosongkan ('') untuk memakai bawaan.

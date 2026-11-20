@@ -5,7 +5,8 @@
   const A = 0.866, B = 0.5, f1 = (n) => Math.round(n * 10) / 10, PC = ['#7DEDE0', '#B8A9F5', '#FFD66B', '#FF9A98', '#8CC8EE'];
   const shade = (hex, k) => { const n = parseInt(hex.slice(1), 16), c = v => Math.max(0, Math.min(255, Math.round(v * k))); return 'rgb(' + c(n >> 16) + ',' + c((n >> 8) & 255) + ',' + c(n & 255) + ')'; };
   const poly = (pts, fill, op) => '<polygon points="' + pts.map(p => f1(p[0]) + ',' + f1(p[1])).join(' ') + '" fill="' + fill + '" stroke="rgba(31,42,68,.45)" stroke-width="1" stroke-linejoin="round"' + (op ? ' fill-opacity="' + op + '"' : '') + '/>';
-  const txt = (x, y, t, sz, c, anchor) => '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" font-family="Epilogue,sans-serif" font-weight="800" font-size="' + (sz || 14) + '" fill="' + (c || '#1F2A44') + '">' + t + '</text>';
+  const ftxt = (x, y, t, sz, c, anchor) => { sz = sz || 14; const w = Math.ceil(Frac.plainLen(t) * sz * 0.62) + 24, h = Math.round(sz * 3.4), x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2, y0 = y - sz * 1.85, just = anchor === 'start' ? 'flex-start' : anchor === 'end' ? 'flex-end' : 'center'; return '<foreignObject x="' + f1(x0) + '" y="' + f1(y0) + '" width="' + w + '" height="' + h + '"><div class="svgf" style="font-size:' + sz + 'px;color:' + (c || '#1F2A44') + ';justify-content:' + just + ';height:100%">' + Frac.html(t) + '</div></foreignObject>'; };
+  const txt = (x, y, t, sz, c, anchor) => (window.Frac && Frac.has(t)) ? ftxt(x, y, t, sz, c, anchor) : '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" font-family="Epilogue,sans-serif" font-weight="800" font-size="' + (sz || 14) + '" fill="' + (c || '#1F2A44') + '">' + t + '</text>';
 
   // ---------- suara ----------
   const UC = [[/²/g, ' kuadrat'], [/³/g, ' pangkat tiga'], [/×/g, ' kali '], [/÷/g, ' dibagi '], [/=/g, ' sama dengan '], [/\+/g, ' tambah '], [/π/g, ' pi '], [/√/g, ' akar '], [/½/g, ' setengah '], [/⅓/g, ' sepertiga '], [/⅔/g, ' dua pertiga '], [/⁴⁄₃/g, ' empat per tiga '], [/≈/g, ' kira-kira '], [/\bcm\b/g, 'sentimeter'], [/→/g, ' '], [/\s+/g, ' ']];
@@ -82,10 +83,10 @@
   function cmp(hi) {
     const cols = [{ k: 'cone', x: 75, f: 1 / 3, c: '#F58A87', n: 'Kerucut', fr: '⅓ tabung', v: 'V = ⅔πr³' }, { k: 'sph', x: 200, f: 2 / 3, c: '#B8A9F5', n: 'Bola', fr: '⅔ tabung', v: 'V = ⁴⁄₃πr³' }, { k: 'cyl', x: 325, f: 1, c: '#6DB4E0', n: 'Tabung', fr: 'tabung penuh', v: 'V = 2πr³' }], top = 52, h = 124, rx = 42; let s = '';
     cols.forEach((c, i) => { const op = hi === 'all' || hi === c.k ? 1 : 0.3, y = top + h * (1 - c.f);
-      s += '<g opacity="' + op + '"><defs><clipPath id="cc' + i + '"><path d="M' + (c.x - rx) + ' ' + top + 'V' + (top + h) + 'A' + rx + ' 14 0 0 0 ' + (c.x + rx) + ' ' + (top + h) + 'V' + top + 'Z"/></clipPath></defs><g clip-path="url(#cc' + i + ')"><rect class="wl" x="' + (c.x - rx) + '" y="' + y + '" width="' + 2 * rx + '" height="' + (top + h + 14 - y) + '" fill="' + c.c + '" fill-opacity=".85" style="animation-delay:' + i * 150 + 'ms"/></g><path d="M' + (c.x - rx) + ' ' + top + 'V' + (top + h) + 'A' + rx + ' 14 0 0 0 ' + (c.x + rx) + ' ' + (top + h) + 'V' + top + '" fill="none" stroke="#1F2A44" stroke-width="3"/><ellipse cx="' + c.x + '" cy="' + top + '" rx="' + rx + '" ry="14" fill="#fff" fill-opacity=".5" stroke="#1F2A44" stroke-width="3"/>' + txt(c.x, top + h + 36, c.n, 15) + txt(c.x, top + h + 56, c.v, 12, '#1B8F84') + '<g><rect x="' + (c.x - 46) + '" y="' + (top - 36) + '" width="92" height="24" rx="12" fill="' + (hi === c.k ? '#E85D5D' : '#1F2A44') + '"/>' + txt(c.x, top - 19, c.fr, 12, '#fff') + '</g></g>';
+      s += '<g opacity="' + op + '"><defs><clipPath id="cc' + i + '"><path d="M' + (c.x - rx) + ' ' + top + 'V' + (top + h) + 'A' + rx + ' 14 0 0 0 ' + (c.x + rx) + ' ' + (top + h) + 'V' + top + 'Z"/></clipPath></defs><g clip-path="url(#cc' + i + ')"><rect class="wl" x="' + (c.x - rx) + '" y="' + y + '" width="' + 2 * rx + '" height="' + (top + h + 14 - y) + '" fill="' + c.c + '" fill-opacity=".85" style="animation-delay:' + i * 150 + 'ms"/></g><path d="M' + (c.x - rx) + ' ' + top + 'V' + (top + h) + 'A' + rx + ' 14 0 0 0 ' + (c.x + rx) + ' ' + (top + h) + 'V' + top + '" fill="none" stroke="#1F2A44" stroke-width="3"/><ellipse cx="' + c.x + '" cy="' + top + '" rx="' + rx + '" ry="14" fill="#fff" fill-opacity=".5" stroke="#1F2A44" stroke-width="3"/>' + txt(c.x, top + h + 36, c.n, 15) + txt(c.x, top + h + 56, c.v, 12, '#1B8F84') + '<g><rect x="' + (c.x - 50) + '" y="' + (top - 48) + '" width="100" height="36" rx="18" fill="' + (hi === c.k ? '#E85D5D' : '#1F2A44') + '"/>' + txt(c.x, top - 26, c.fr, 12, '#fff') + '</g></g>';
     });
-    if (hi === 'cone') s += '<g><rect x="30" y="268" width="340" height="26" rx="13" fill="#FFF0C4"/>' + txt(200, 286, '⚠ Kerucut = ⅓ tabung, BUKAN ⅔. Angka ⅔πr³ hanyalah hasil ⅓ × 2πr³.', 12, '#7A5200') + '</g>';
-    else s += '<g><rect x="30" y="268" width="340" height="26" rx="13" fill="#D5F7F2"/>' + txt(200, 286, '⅓ + ⅓ = ⅔  →  2 kerucut = 1 bola', 13, '#005049') + '</g>';
+    if (hi === 'cone') s += '<g><rect x="20" y="256" width="360" height="40" rx="20" fill="#FFF0C4"/>' + txt(200, 281, '⚠ Kerucut = ⅓ tabung, BUKAN ⅔. Angka ⅔πr³ hanyalah hasil ⅓ × 2πr³.', 12, '#7A5200') + '</g>';
+    else s += '<g><rect x="20" y="256" width="360" height="40" rx="20" fill="#D5F7F2"/>' + txt(200, 281, '⅓ + ⅓ = ⅔  →  2 kerucut = 1 bola', 13, '#005049') + '</g>';
     return s;
   }
   // ---------- irisan Cavalieri: belahan bola vs tabung − kerucut ----------
@@ -120,7 +121,7 @@
     } else if (mode === 'frac' || mode === 'full') {
       const g = geo(96, [200, 138]);
       s += '<circle cx="200" cy="138" r="96" fill="' + (mode === 'full' ? '#FFD66B' : 'none') + '" fill-opacity=".35" stroke="#9AA6BD" stroke-width="3" stroke-dasharray="' + (mode === 'full' ? '0' : '7 6') + '"/>';
-      if (mode === 'frac') s += sector(g, '#FFD66B', 0.85) + '<path d="' + arcPath(g) + '" fill="none" stroke="#E85D5D" stroke-width="6" stroke-linecap="round"/>' + txt(200, 170, 'juring', 14, '#7A5200') + txt(200, 30, 'Keliling lingkaran penuh = 2πs', 13, '#5B6580') + '<g><rect x="30" y="262" width="340" height="28" rx="14" fill="#1F2A44"/>' + txt(200, 281, 'busur 2πr  ÷  keliling 2πs  =  r / s', 13, '#fff') + '</g>';
+      if (mode === 'frac') s += sector(g, '#FFD66B', 0.85) + '<path d="' + arcPath(g) + '" fill="none" stroke="#E85D5D" stroke-width="6" stroke-linecap="round"/>' + txt(200, 170, 'juring', 14, '#7A5200') + txt(200, 30, 'Keliling lingkaran penuh = 2πs', 13, '#5B6580') + '<g><rect x="14" y="246" width="372" height="46" rx="23" fill="#1F2A44"/>' + txt(200, 275, 'bagian = {busur|keliling} = 2πr / 2πs = r / s', 13, '#fff') + '</g>';
       else s += '<path d="M200 138L296 138" stroke="#1F2A44" stroke-width="2.5"/>' + txt(248, 130, 's', 17, '#1F2A44') + txt(200, 150, 'πs²', 26, '#7A5200') + txt(200, 30, 'Lingkaran penuh berjari-jari s', 13, '#5B6580') + '<g><rect x="30" y="262" width="340" height="28" rx="14" fill="#1F2A44"/>' + txt(200, 281, 'L lingkaran penuh = π × s × s = πs²', 13, '#fff') + '</g>';
     } else {
       const g = geo(70, [95, 100]); s += sector(g, '#FFD66B', 0.85); for (let i = 1; i < 14; i++) { const a = g.a0 + (g.a1 - g.a0) * i / 14; s += '<path d="M' + pt(g.C) + 'L' + f(g.C[0] + 70 * Math.cos(a)) + ' ' + f(g.C[1] + 70 * Math.sin(a)) + '" stroke="#B93A3F" stroke-width="1.1"/>'; }
@@ -132,10 +133,10 @@
 
   // ---------- panel langkah ----------
   function mount(host, m, key) {
-    const steps = TURUNAN[m.id][key], judul = key === 'lp' ? 'Penemuan Rumus Luas Permukaan ' + m.nama : 'Penemuan Rumus Volume ' + m.nama, st = { i: 0, play: false, timer: null, ctl: null, an: null, kind: null, prevLvl: 0 };
+    const steps = TURUNAN[m.id][key], judul = key === 'lp' ? 'Penemuan Rumus Luas Permukaan ' + m.nama : 'Penemuan Rumus Volume ' + m.nama, st = { i: 0, play: false, timer: null, ctl: null, an: null, kind: null, prevLvl: 0, wt: [] };
     host.innerHTML = '<div class="dv"><div class="row between wrap gap"><div><span class="chip ' + (key === 'lp' ? 'chip-coral' : 'chip-teal') + '">' + (key === 'lp' ? '📐 Luas Permukaan' : '🧊 Volume') + '</span><h3 class="h3 mt">' + esc(judul) + '</h3></div><span class="muted sm" id="dv-n"></span></div>' +
-      '<div class="dv-grid"><div class="dv-stage"><div class="dv-host"></div><div class="dv-cap"></div></div><div class="dv-side"><ol class="dv-list">' + steps.map((s, i) => '<li><button data-i="' + i + '"><b>' + (i + 1) + '</b><span>' + esc(s.t) + '</span></button></li>').join('') + '</ol></div></div>' +
-      '<div class="dv-now"><h4 class="dv-t"></h4><p class="dv-d"></p><div class="dv-f"></div></div>' +
+      '<div class="dv-grid"><div class="dv-stage"><div class="dv-host"></div><div class="dv-cap"></div></div><div class="dv-side"><ol class="dv-list">' + steps.map((s, i) => '<li><button data-i="' + i + '"><b>' + (i + 1) + '</b><span>' + esc(s.t) + (s.k ? ' <i class="wki" title="Ada pengerjaan">✍</i>' : '') + '</span></button></li>').join('') + '</ol></div></div>' +
+      '<div class="dv-now"><div class="dv-txt"><h4 class="dv-t"></h4><p class="dv-d"></p><div class="dv-f"></div></div><div class="dv-work"></div></div>' +
       '<div class="dv-ctl"><button class="btn btn-ghost sm" data-c="prev">◀ Sebelumnya</button><button class="btn btn-primary sm fx-btn" data-c="play">▶ Putar dengan Suara</button><button class="btn btn-ghost sm" data-c="next">Berikutnya ▶</button><button class="btn btn-soft sm" data-c="say">🔈 Dengarkan langkah ini</button><label class="chk"><input type="checkbox" data-c="voice" ' + (Voice.on ? 'checked' : '') + '> 🔊 Narasi suara</label><label class="chk">Kecepatan <select class="input" data-c="rate" style="width:auto"><option value="0.8">Pelan</option><option value="0.95" selected>Normal</option><option value="1.15">Cepat</option></select></label></div><p class="muted sm dv-note"></p></div>';
     const $h = host.querySelector('.dv-host'), q = (s) => host.querySelector(s);
     if (!Voice.synth) { q('.dv-note').textContent = 'Peramban ini belum mendukung suara narasi; langkah tetap berjalan otomatis dan bisa dibaca.'; q('[data-c=voice]').disabled = true; q('[data-c=say]').disabled = true; }
@@ -163,30 +164,42 @@
       $h.innerHTML = '<svg viewBox="0 0 400 300" role="img" aria-label="Animasi penemuan rumus">' + body + (extra ? '<g>' + '<rect x="12" y="12" rx="12" width="' + (String(extra).length * 10 + 140) + '" height="30" fill="#1F2A44"/>' + txt(24, 32, 'Jumlah kubus: ' + extra, 14, '#fff', 'start') + '</g>' : '') + '</svg>';
       if (sp.s === 'pour') { const g = $h.querySelector('.wat'); const to = sp.lvl !== undefined ? sp.lvl : sp.n / 3; if (g) setTimeout(() => { g.style.transition = 'transform 1.1s ease'; g.style.transform = 'scaleY(' + to + ')'; }, 60); st.prevLvl = to; }
     }
+    const clearWork = () => { st.wt.forEach(clearTimeout); st.wt = []; };
+    function renderWork(i, mode, total) {
+      clearWork(); const box = q('.dv-work'), lines = steps[i].k;
+      if (!box) return; if (!lines || !lines.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      box.style.display = '';
+      box.innerHTML = '<div class="wk-h"><b>✍️ Pengerjaan</b><button type="button" class="btn btn-ghost sm" data-c="replay" title="Ulangi pengerjaan" aria-label="Ulangi pengerjaan">↻ Ulangi</button></div><ol class="wk">' + lines.map(l => { const p = l.split(' // '); return '<li class="wk-l"><span class="wk-t">' + Frac.html(p[0]) + '</span>' + (p[1] ? '<em class="wk-n">' + Frac.html(p[1]) + '</em>' : '') + '</li>'; }).join('') + '</ol>';
+      const items = box.querySelectorAll('.wk-l'), gap = mode === 'paced' ? Math.max(650, Math.min(2800, (total || 6000) / (items.length + 0.6))) : 750;
+      items.forEach((li, j) => st.wt.push(setTimeout(() => { items.forEach(x => x.classList.remove('cur')); li.classList.add('on', 'cur'); if (window.Sfx && mode !== 'paced') Sfx.play('nav'); }, 280 + j * gap)));
+    }
+    function finishWork() { clearWork(); host.querySelectorAll('.wk-l').forEach(li => { li.classList.add('on'); li.classList.remove('cur'); }); }
     function show(i, auto) {
       st.i = Math.max(0, Math.min(steps.length - 1, i)); const s = steps[st.i];
       q('#dv-n').textContent = 'Langkah ' + (st.i + 1) + ' dari ' + steps.length; q('.dv-t').textContent = (st.i + 1) + '. ' + s.t; q('.dv-d').textContent = s.d; const fe = q('.dv-f'); fe.textContent = s.f; fe.classList.remove('pop'); void fe.offsetWidth; fe.classList.add('pop');
       q('.dv-cap').textContent = s.c || ''; q('.dv-cap').style.display = s.c ? '' : 'none';
       host.querySelectorAll('.dv-list button').forEach((b, k) => { b.classList.toggle('on', k === st.i); b.classList.toggle('done', k < st.i); }); const cur = host.querySelector('.dv-list button.on'); if (cur && cur.scrollIntoView && auto) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      visual(s.v); if (window.Sfx) Sfx.play('step', st.i);
+      visual(s.v); if (window.Sfx) Sfx.play('step', st.i); if (!st.play) renderWork(st.i, 'manual');
     }
-    function stop() { st.play = false; clearTimeout(st.timer); Voice.cancel(); const b = q('[data-c=play]'); if (b) b.textContent = '▶ Putar dengan Suara'; }
+    function stop() { st.play = false; clearTimeout(st.timer); Voice.cancel(); finishWork(); const b = q('[data-c=play]'); if (b) b.textContent = '▶ Putar dengan Suara'; }
     function advance() { if (!st.play) return; if (st.i >= steps.length - 1) { stop(); if (window.Sfx) Sfx.play('success'); return; } show(st.i + 1, true); narrate(); }
     function narrate() {
-      if (!st.play) return; const s = steps[st.i];
-      if (Voice.on && Voice.synth) Voice.speak(s.d, () => { if (st.play) st.timer = setTimeout(advance, 900); });
-      else st.timer = setTimeout(advance, 3500 + s.d.length * 55);
+      if (!st.play) return; const s = steps[st.i], vo = Voice.on && Voice.synth, est = vo ? s.d.length * 66 : 3500 + s.d.length * 55;
+      renderWork(st.i, 'paced', est);
+      if (vo) Voice.speak(s.d, () => { finishWork(); if (st.play) st.timer = setTimeout(advance, 1100); });
+      else st.timer = setTimeout(() => { finishWork(); advance(); }, est + 500);
     }
     host.addEventListener('click', e => {
       const b = e.target.closest('[data-i]'); if (b) { show(+b.dataset.i); if (st.play) { Voice.cancel(); clearTimeout(st.timer); narrate(); } return; }
       const c = e.target.closest('[data-c]'); if (!c) return; const a = c.dataset.c;
       if (a === 'prev' || a === 'next') { show(st.i + (a === 'next' ? 1 : -1)); if (st.play) { Voice.cancel(); clearTimeout(st.timer); narrate(); } }
       if (a === 'play') { if (st.play) stop(); else { if (window.__dvStop) window.__dvStop(); st.play = true; window.__dvStop = stop; c.textContent = '⏸ Jeda'; if (st.i >= steps.length - 1) show(0); narrate(); } }
+      if (a === 'replay') renderWork(st.i, 'manual');
       if (a === 'say') { if (window.__dvStop && window.__dvStop !== stop) window.__dvStop(); Voice.speak(steps[st.i].d); }
     });
     host.addEventListener('change', e => { const c = e.target.dataset.c; if (c === 'voice') { Voice.on = e.target.checked; localStorage.setItem('gq_voice', Voice.on ? 'on' : 'off'); if (!Voice.on) Voice.cancel(); } if (c === 'rate') Voice.rate = +e.target.value; });
     show(0);
-    return { destroy() { stop(); clearStage(); if (window.__dvStop === stop) window.__dvStop = null; } };
+    return { destroy() { stop(); clearWork(); clearStage(); if (window.__dvStop === stop) window.__dvStop = null; } };
   }
   window.Derive = { mount, Voice, ucap };
 })();
